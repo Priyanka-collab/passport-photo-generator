@@ -73,7 +73,8 @@ async function main() {
   const b64 = buf.toString('base64')
 
   // Default to the Segmind model page URL per user request; override with SEGMIND_API_URL if you have the proper API endpoint.
-  const apiUrl = process.env.SEGMIND_API_URL || 'https://www.segmind.com/models/qwen-image-edit-plus'
+  const apiUrl = process.env.SEGMIND_API_URL || 'https://api.segmind.com/v1/nano-banana'
+//   'https://www.segmind.com/models/qwen-image-edit-plus' 
 
   const payload = {
     model: 'qwen-image-edit-plus',

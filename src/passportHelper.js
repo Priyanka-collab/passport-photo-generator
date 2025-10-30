@@ -298,15 +298,15 @@ export async function generatePassportPhoto(imageSrc, { width = 600, height = 80
   const box = detection.detection.box
   const landmarks = detection.landmarks
 
-  // compute crop box: enlarge bounding box with margin
-  const margin = 0.6 // percentage of face size to include around
+  // compute crop box: enlarge bounding box with margin for head and shoulders
+  const margin = 0.8 // increased margin for head and shoulders
   const faceW = box.width
   const faceH = box.height
   const cx = box.x + faceW / 2
   const cy = box.y + faceH / 2
 
-  const cropW = faceW * (1 + margin)
-  const cropH = faceH * (1 + margin * 1.4) // more vertical space
+  const cropW = faceW * (1 + margin * 1.2) // wider horizontal crop for full shoulders
+  const cropH = faceH * (1 + margin * 2.2) // even more vertical space for complete shoulders
 
   let sx = Math.max(0, cx - cropW / 2)
   let sy = Math.max(0, cy - cropH / 2)

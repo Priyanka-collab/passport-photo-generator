@@ -1,15 +1,72 @@
-// Simple Segmind proxy server
+// Simple Segmind proxy server with Google OAuth
 require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const axios = require('axios')
 const cors = require('cors')
+const passport = require('passport')
+const session = require('express-session')
+const GoogleStrategy = require('passport-google-oauth20').Strategy
+
 const app = express()
 
-app.use(cors())
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false
+}))
+
+// Initialize Passport
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}))
 app.use(bodyParser.json({ limit: '50mb' }))
 
-app.post('/api/segmind', async (req, res) => {
+// Passport serialization
+passport.serializeUser((user, done) => {
+  done(null, user)
+})
+
+passport.deserializeUser((user, done) => {
+  // User object is stored directly in session
+  done(null, user)
+})
+
+// Google OAuth Strategy
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/auth/google/callback'
+  },
+  (accessToken, refreshToken, profile, done) => {
+    // In a real app, you'd save user to database
+    // For now, return profile info
+    console.log('Google profile:', profile.displayName, profile.name)
+    return done(null, {
+      id: profile.id,
+      email: profile.emails[0].value,
+      name: profile.displayName,
+      givenName: profile.name?.givenName,
+      familyName: profile.name?.familyName,
+      picture: profile.photos[0].value
+    })
+  }
+))
+
+// Middleware to require authentication
+function requireAuth(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next()
+  }
+  res.status(401).json({ error: 'Authentication required' })
+}
+
+app.post('/api/segmind', requireAuth, async (req, res) => {
   try {
     const apiUrl = process.env.SEGMIND_API_URL || 'https://www.segmind.com/models/qwen-image-edit-plus'
     const apiKey = process.env.SEGMIND_API_KEY
@@ -227,6 +284,40 @@ app.post('/api/segmind', async (req, res) => {
   }
 })
 
+// Authentication routes
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+)
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to frontend
+    res.redirect('http://localhost:5173')
+  }
+)
+
+app.get('/auth/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('http://localhost:5173')
+  })
+})
+
+app.get('/auth/user', (req, res) => {
+  if (req.isAuthenticated()) {
+    // In a real app, fetch user credits/subscription from database
+    // For now, return mock data
+    const userWithCredits = {
+      ...req.user,
+      credits: req.user.credits || 0,
+      hasSubscription: req.user.hasSubscription || false
+    }
+    res.json({ user: userWithCredits })
+  } else {
+    res.json({ user: null })
+  }
+})
+
 // Simple health endpoint so the frontend can quickly check proxy/key status
 app.get('/api/health', (req, res) => {
   const hasKey = !!process.env.SEGMIND_API_KEY
@@ -236,6 +327,6 @@ app.get('/api/health', (req, res) => {
 })
 
 const port = process.env.PORT || 3001
-app.listen(port, () => console.log('Segmind proxy listening on', port))
-// Proxy server ready. Make sure SEGMIND_API_KEY and SEGMIND_API_URL are set in a .env file
+app.listen(port, () => console.log('Segmind proxy with Google OAuth listening on', port))
+// Proxy server ready. Make sure SEGMIND_API_KEY, SEGMIND_API_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and SESSION_SECRET are set in a .env file
 // and restart this process when you change them.
