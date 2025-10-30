@@ -1,0 +1,47 @@
+:root{
+	--bg-gradient-1: #0f172a;
+	--bg-gradient-2: #0ea5a3;
+	--card-bg: rgba(255,255,255,0.06);
+	--card-blur: 10px;
+	--accent: #7c3aed;
+	--muted: rgba(255,255,255,0.75);
+}
+
+html,body,#root { height:100%; }
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; }
+
+.app-bg {
+	min-height:100vh;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	background: linear-gradient(135deg, var(--bg-gradient-1) 0%, #071130 30%, var(--bg-gradient-2) 100%);
+	color:var(--muted);
+	padding:40px;
+}
+
+.container { max-width:1000px; width:100%; }
+.card { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); padding:28px; border-radius:12px; box-shadow: 0 10px 30px rgba(2,6,23,0.6); backdrop-filter: blur(var(--card-blur)); }
+
+.card h1 { margin:0 0 12px 0; color: #fff; font-size:1.6rem }
+.controls { display:flex; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap }
+input[type='file'] { background:transparent; color:var(--muted); border:1px dashed rgba(255,255,255,0.12); padding:8px 12px; border-radius:8px }
+
+.button-group { display:flex; gap:8px }
+button { padding:10px 14px; border-radius:10px; border:0; cursor:pointer; font-weight:600 }
+.primary { background: linear-gradient(90deg, var(--accent), #06b6d4); color:white }
+.primary:disabled { opacity:0.5; cursor:not-allowed }
+.secondary { background: rgba(255,255,255,0.06); color: white; border:1px solid rgba(255,255,255,0.06) }
+.tertiary { background: transparent; color: rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.08) }
+
+.preview-row { display:flex; gap:24px; margin-top:6px }
+.preview-col { flex:1; }
+.preview-col h3 { color: rgba(255,255,255,0.9); margin:0 0 8px 0 }
+.preview-img { max-width:100%; max-height:440px; border-radius:8px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); background:#fff; display:block }
+.passport-img { width:300px; height:400px; object-fit:cover; border-radius:6px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); display:block }
+.empty { width:100%; min-height:200px; background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border:1px dashed rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); border-radius:8px }
+
+@media (max-width:900px){
+	.preview-row { flex-direction:column }
+	.passport-img { width:240px; height:320px }
+}
