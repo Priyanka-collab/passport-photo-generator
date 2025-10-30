@@ -37,7 +37,7 @@ export default function App() {
 
   async function checkAuthStatus() {
     try {
-      const response = await fetch('http://localhost:3001/auth/user', {
+      const response = await fetch('/auth/user', {
         credentials: 'include'
       })
       const data = await response.json()
@@ -51,13 +51,13 @@ export default function App() {
   }
 
   async function handleLogin() {
-    window.location.href = 'http://localhost:3001/auth/google'
+    window.location.href = '/auth/google'
   }
 
   async function handleLogout() {
     try {
       // Redirect to logout endpoint which will clear session and redirect back
-      window.location.href = 'http://localhost:3001/auth/logout'
+      window.location.href = '/auth/logout'
     } catch (err) {
       console.error('Failed to logout:', err)
     }

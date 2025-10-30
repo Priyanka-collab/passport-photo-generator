@@ -22,7 +22,9 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.VERCEL_URL || 'https://your-project-name.vercel.app'
+    : 'http://localhost:5173',
   credentials: true
 }))
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -293,13 +295,19 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
     // Successful authentication, redirect to frontend
-    res.redirect('http://localhost:5173')
+    const redirectUrl = process.env.NODE_ENV === 'production'
+      ? process.env.VERCEL_URL || 'https://passport-photo-generator-eosin.vercel.app'
+      : 'http://localhost:5173'
+    res.redirect(redirectUrl)
   }
 )
 
 app.get('/auth/logout', (req, res) => {
   req.logout(() => {
-    res.redirect('http://localhost:5173')
+    const redirectUrl = process.env.NODE_ENV === 'production'
+      ? process.env.VERCEL_URL || 'https://passport-photo-generator-eosin.vercel.app'
+      : 'http://localhost:5173'
+    res.redirect(redirectUrl)
   })
 })
 
