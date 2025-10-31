@@ -1,6 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { generatePassportPhoto, loadModels, callSegmind } from './passportHelper'
 
+// Environment-based API base URL
+const API_BASE = process.env.NODE_ENV === 'production'
+  ? ''  // Relative paths for production (handled by vercel.json)
+  : 'http://localhost:3001'
+
 export default function App() {
   const [src, setSrc] = useState(null)
   const [result, setResult] = useState(null)
@@ -37,7 +42,7 @@ export default function App() {
 
   async function checkAuthStatus() {
     try {
-      const response = await fetch('/auth/user', {
+      const response = await fetch(`${API_BASE}/auth/user`, {
         credentials: 'include'
       })
       const data = await response.json()
@@ -51,13 +56,13 @@ export default function App() {
   }
 
   async function handleLogin() {
-    window.location.href = '/auth/google'
+    window.location.href = `${API_BASE}/auth/google`
   }
 
   async function handleLogout() {
     try {
       // Redirect to logout endpoint which will clear session and redirect back
-      window.location.href = '/auth/logout'
+      window.location.href = `${API_BASE}/auth/logout`
     } catch (err) {
       console.error('Failed to logout:', err)
     }
