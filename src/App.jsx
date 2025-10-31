@@ -364,9 +364,9 @@ export default function App() {
                 background: '#f8f9ff'
               }}>
                 <h3 style={{ margin: '0 0 8px 0', color: '#007bff' }}>Premium Subscription</h3>
-                <p style={{ margin: '0 0 12px 0', color: '#666' }}>₹30 lifetime access - unlimited photos forever</p>
+                <p style={{ margin: '0 0 12px 0', color: '#666' }}>₹10 lifetime access</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>₹30</span>
+                  <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>₹10</span>
                   <button
                     style={{
                       background: '#007bff',
@@ -377,7 +377,7 @@ export default function App() {
                       cursor: 'pointer',
                       fontSize: '14px'
                     }}
-                    onClick={() => window.open('upi://pay?pa=your-upi-id@paytm&pn=Passport%20Photo%20App&am=30&cu=INR', '_blank')}
+                    onClick={() => window.open('upi://pay?pa=your-upi-id@paytm&pn=Passport%20Photo%20App&am=10&cu=INR', '_blank')}
                   >
                     Pay with UPI
                   </button>

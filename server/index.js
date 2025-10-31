@@ -23,7 +23,7 @@ app.use(passport.session())
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? process.env.VERCEL_URL || 'https://your-project-name.vercel.app'
+    ? 'https://passport-photo-generator-eosin.vercel.app'
     : 'http://localhost:5173',
   credentials: true
 }))
@@ -43,7 +43,9 @@ passport.deserializeUser((user, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: process.env.NODE_ENV === 'production'
+      ? 'https://passport-photo-generator-eosin.vercel.app/auth/google/callback'
+      : '/auth/google/callback'
   },
   (accessToken, refreshToken, profile, done) => {
     // In a real app, you'd save user to database
@@ -296,7 +298,7 @@ app.get('/auth/google/callback',
   (req, res) => {
     // Successful authentication, redirect to frontend
     const redirectUrl = process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL || 'https://passport-photo-generator-eosin.vercel.app'
+      ? 'https://passport-photo-generator-eosin.vercel.app'
       : 'http://localhost:5173'
     res.redirect(redirectUrl)
   }
@@ -305,7 +307,7 @@ app.get('/auth/google/callback',
 app.get('/auth/logout', (req, res) => {
   req.logout(() => {
     const redirectUrl = process.env.NODE_ENV === 'production'
-      ? process.env.VERCEL_URL || 'https://passport-photo-generator-eosin.vercel.app'
+      ? 'https://passport-photo-generator-eosin.vercel.app'
       : 'http://localhost:5173'
     res.redirect(redirectUrl)
   })
