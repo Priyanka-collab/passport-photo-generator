@@ -48,17 +48,22 @@ passport.use(new GoogleStrategy({
       : '/auth/google/callback'
   },
   (accessToken, refreshToken, profile, done) => {
-    // In a real app, you'd save user to database
-    // For now, return profile info
-    console.log('Google profile:', profile.displayName, profile.name)
-    return done(null, {
-      id: profile.id,
-      email: profile.emails[0].value,
-      name: profile.displayName,
-      givenName: profile.name?.givenName,
-      familyName: profile.name?.familyName,
-      picture: profile.photos[0].value
-    })
+    try {
+      // In a real app, you'd save user to database
+      // For now, return profile info
+      console.log('Google profile:', profile.displayName, profile.name)
+      return done(null, {
+        id: profile.id,
+        email: profile.emails[0].value,
+        name: profile.displayName,
+        givenName: profile.name?.givenName,
+        familyName: profile.name?.familyName,
+        picture: profile.photos[0].value
+      })
+    } catch (error) {
+      console.error('Error in Google OAuth strategy:', error)
+      return done(error, null)
+    }
   }
 ))
 
@@ -294,13 +299,32 @@ app.get('/auth/google',
 )
 
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    // Successful authentication, redirect to frontend
-    const redirectUrl = process.env.NODE_ENV === 'production'
-      ? 'https://passport-photo-generator-eosin.vercel.app'
-      : 'http://localhost:5173'
-    res.redirect(redirectUrl)
+  (req, res, next) => {
+    console.log('OAuth callback received, authenticating...')
+    passport.authenticate('google', { failureRedirect: '/' }, (err, user, info) => {
+      if (err) {
+        console.error('Passport authentication error:', err)
+        return res.status(500).json({ error: 'Authentication failed', details: err.message })
+      }
+      if (!user) {
+        console.log('No user returned from Google:', info)
+        return res.redirect('/')
+      }
+
+      // Log in the user
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error('Login error:', err)
+          return res.status(500).json({ error: 'Login failed', details: err.message })
+        }
+
+        console.log('User authenticated successfully:', user.email)
+        const redirectUrl = process.env.NODE_ENV === 'production'
+          ? 'https://passport-photo-generator-eosin.vercel.app'
+          : 'http://localhost:5173'
+        res.redirect(redirectUrl)
+      })
+    })(req, res, next)
   }
 )
 
@@ -314,17 +338,22 @@ app.get('/auth/logout', (req, res) => {
 })
 
 app.get('/auth/user', (req, res) => {
-  if (req.isAuthenticated()) {
-    // In a real app, fetch user credits/subscription from database
-    // For now, return mock data
-    const userWithCredits = {
-      ...req.user,
-      credits: req.user.credits || 0,
-      hasSubscription: req.user.hasSubscription || false
+  try {
+    if (req.isAuthenticated()) {
+      // In a real app, fetch user credits/subscription from database
+      // For now, return mock data
+      const userWithCredits = {
+        ...req.user,
+        credits: req.user.credits || 0,
+        hasSubscription: req.user.hasSubscription || false
+      }
+      res.json({ user: userWithCredits })
+    } else {
+      res.json({ user: null })
     }
-    res.json({ user: userWithCredits })
-  } else {
-    res.json({ user: null })
+  } catch (error) {
+    console.error('Error in /auth/user:', error)
+    res.status(500).json({ error: 'Internal server error', details: error.message })
   }
 })
 
