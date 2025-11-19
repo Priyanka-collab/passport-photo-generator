@@ -77,17 +77,12 @@ function requireAuth(req, res, next) {
 
 app.post('/api/segmind', requireAuth, async (req, res) => {
   try {
-    const apiUrl = process.env.SEGMIND_API_URL || 'https://www.segmind.com/models/qwen-image-edit-plus'
+    const apiUrl = process.env.SEGMIND_API_URL || 'https://api.segmind.com/v1/nano-banana'
     const apiKey = process.env.SEGMIND_API_KEY
-    if (!apiKey) return res.status(400).json({ error: 'SEGMIND_API_KEY not set' })
+    if (!apiKey) return res.status(400).json({ error: 'SEGMIND_API_KEY not set in environment variables' })
 
-    // If the apiUrl looks like the public model page (not an inference API), return a helpful error.
-    if (/segmind\.com\/models\//.test(apiUrl)) {
-      return res.status(400).json({
-        error: 'SEGMIND_API_URL appears to be a model page, not an API endpoint',
-        detail: 'Please set SEGMIND_API_URL to the inference API endpoint (see Segmind docs). Example: https://api.segmind.com/v1/image/edit'
-      })
-    }
+    console.log('Using Segmind API endpoint:', apiUrl)
+    console.log('API Key present:', !!apiKey)
 
     // If the client sent multipart/form-data (FormData with files), forward the raw stream
     // directly to the upstream Segmind API. This lets the browser simply POST a file and
